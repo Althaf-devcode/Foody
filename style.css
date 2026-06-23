@@ -117,6 +117,129 @@ body{
     color:#333;
 }
 
+/* Sign In page */
+.signin-container{
+    display: flex;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.signin-box{
+    width:350px;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
+    text-align:center;
+}
+
+.signin-box h2{
+    color:#ff6b00;
+    margin-bottom:20px;
+}
+
+.signin-box input,
+.signin-box select{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ddd;
+    border-radius:5px;
+}
+
+.signin-box button{
+    width:100%;
+    padding:12px;
+    background:#ff6b00;
+    color:white;
+    border:none;
+    cursor:pointer;
+    border-radius:5px;
+    font-size:16px;
+}
+
+.signin-box button:hover{
+    background:#e65c00;
+}
+
+#toggleText{
+    margin-top:15px;
+    font-size:14px;
+}
+
+#toggleLink{
+    color:#ff6b00;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+/* Sign up page */
+.password-box{
+    position: relative;
+}
+
+.password-box i{
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+#signup-btn{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+#user-area {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#userIcon{
+    font-size: 25px;
+}
+
+#auth-area{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+/* dropdown hidden by default */
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 10px;
+    min-width: 120px;
+    z-index: 1000;
+}
+
+/* show when active */
+.dropdown.show {
+    display: block;
+}
+
+.dropdown p {
+    margin: 0;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.dropdown p:hover {
+    background: #f2f2f2;
+}
+
+
 
 /* Hero Section */
 
