@@ -34,10 +34,44 @@
 
     </section>
 
+    <!-- Menu Section -->
+    <section class="menu-section" id="menu">
+
+        <h2 class="section-title">Our Menu</h2>
+
+        <!-- Category Buttons -->
+        <div class="category-filter">
+            <button class="active" data-category="all">All</button>
+            <button data-category="Burger">Burger</button>
+            <button data-category="Submarine">Submarine</button>
+            <button data-category="Pizza">Pizza</button>
+            <button data-category="Rice">Rice</button>
+            <button data-category="Drink">Drink</button>
+        </div>
+
+        <!-- Food List (Firebase will load here) -->
+        <div class="food-container" id="food-container">
+
+            <!-- Example Card (Firebase will replace this dynamically) -->
+            <div class="food-card">
+                <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092" />
+                <h3>Chicken Burger</h3>
+                <p>Juicy grilled chicken burger with cheese</p>
+                <div class="food-footer">
+                    <span>Rs. 1200</span>
+                    <button>Add to Cart</button>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
     
 
     <script type="module" src="script.js"></script>
     <script type="module" src="authentication.js"></script>
+    <script type="module" src="foods.js"></script>
 </body>
 
 </html>
