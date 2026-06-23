@@ -1,4 +1,4 @@
-// Load Navbar 
+// Load Navbar
 fetch("navbar.html")
     .then(res => res.text())
     .then(data => {
@@ -36,4 +36,18 @@ function setupNavbar() {
             }
         });
     }
+}
+
+const userIcon = document.getElementById("userIcon");
+const dropdown = document.getElementById("dropdown");
+
+if (userIcon && dropdown) {
+    userIcon.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click", () => {
+        dropdown.classList.remove("show");
+    });
 }
