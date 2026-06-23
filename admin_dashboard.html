@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Admin Dashboard - Test</title>
+	<style>
+		body{font-family:Arial,Helvetica,sans-serif;margin:40px}
+		.card{border:1px solid #ddd;padding:20px;border-radius:6px;max-width:600px}
+		.grid{display:flex;gap:12px;margin-top:12px}
+		.tile{flex:1;padding:12px;background:#f7f7f7;border-radius:4px;text-align:center}
+	</style>
+</head>
+<body>
+	<h1>Foody Admin Dashboard (Test)</h1>
+	<div class="card">
+		<p id="status">Status: <strong>OK</strong></p>
+		<div class="grid">
+			<div class="tile">Orders<br><span id="orders">0</span></div>
+			<div class="tile">Users<br><span id="users">0</span></div>
+			<div class="tile">Revenue<br><span id="revenue">$0</span></div>
+		</div>
+		<p style="margin-top:16px;"><button id="simulate">Simulate Update</button></p>
+	</div>
+
+	<script>
+		// simple test code to exercise the dashboard
+		document.getElementById('simulate').addEventListener('click', function(){
+			document.getElementById('orders').textContent = Math.floor(Math.random()*200);
+			document.getElementById('users').textContent = Math.floor(Math.random()*1000);
+			document.getElementById('revenue').textContent = '$' + (Math.random()*5000).toFixed(2);
+			document.getElementById('status').children[0].textContent = 'Updated';
+		});
+	</script>
+</body>
+</html>
