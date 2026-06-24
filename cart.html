@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart - Foody</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div id="navbar"></div>
+
+    <div class="cart-page">
+
+        <h1 class="cart-title">
+            <i class="ri-shopping-cart-2-fill"></i>
+            My Cart
+        </h1>
+
+        <!-- Cart Items -->
+        <div id="cart-container">
+
+            <!-- Items will load from Firebase -->
+
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="summary">
+
+            <div class="row">
+                <span>Subtotal</span>
+                <span id="subtotal">Rs. 0</span>
+            </div>
+
+            <div class="row">
+                <span>Delivery Fee</span>
+                <span>Rs. 200</span>
+            </div>
+
+            <hr>
+
+            <div class="row total">
+                <span>Total</span>
+                <span id="total">Rs. 0</span>
+            </div>
+
+
+            <button class="checkout-btn">
+                Proceed to Checkout
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Load Navbar -->
+   <script type="module">
+import { db } from "./firebase.js";
+import {
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+async function updateCartCount() {
+
+    const snapshot = await getDocs(collection(db, "cart"));
+
+    let totalItems = 0;
+
+    snapshot.forEach(doc => {
+        totalItems += doc.data().quantity;
+    });
+
+    const cartCount = document.querySelector(".cart-count");
+
+    if (cartCount) {
+        cartCount.innerText = totalItems;
+    }
+}
+
+fetch("navbar.html")
+.then(response => response.text())
+.then(data => {
+
+    document.getElementById("navbar").innerHTML = data;
+
+    updateCartCount(); // update badge after navbar loads
+});
+</script>
+<script type="module" src="cart.js"></script>
+
+</body>
+
+</html>

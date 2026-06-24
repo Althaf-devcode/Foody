@@ -1,11 +1,15 @@
 import { db } from "./firebase.js";
 import {
     collection,
-    getDocs
+    getDocs,
+    addDoc
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
 
 const foodContainer = document.getElementById("food-container");
 const buttons = document.querySelectorAll(".category-filter button");
+
+
 
 let allFoods = []; // store all foods from Firebase
 
@@ -28,7 +32,8 @@ function displayFoods(foods) {
 
     foodContainer.innerHTML = "";
 
-    foods.forEach((food) => {
+    foods.forEach((food, index) => {
+
         foodContainer.innerHTML += `
             <div class="food-card">
                 <img src="${food.image}" alt="${food.name}">
@@ -37,10 +42,32 @@ function displayFoods(foods) {
 
                 <div class="food-footer">
                     <span>Rs. ${food.price}</span>
-                    <button>Add to Cart</button>
+                    <button class="cart-btn" data-index="${index}">
+                        Add to Cart
+                    </button>
                 </div>
             </div>
         `;
+    });
+
+    document.querySelectorAll(".cart-btn").forEach(btn => {
+
+        btn.addEventListener("click", async () => {
+
+            const food = foods[btn.dataset.index];
+
+            await addDoc(collection(db, "cart"), {
+                name: food.name,
+                image: food.image,
+                price: food.price,
+                quantity: 1
+            });
+
+            alert("Added to Cart!");
+
+            window.location.href = "cart.html";
+        });
+
     });
 }
 
