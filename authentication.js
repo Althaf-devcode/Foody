@@ -60,7 +60,7 @@ if (signupBtn) {
         }
     });
 }
-
+//-------------------------------------------------------------------------------------------
 
 // Login
 import { getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
@@ -109,7 +109,7 @@ if (signinBtn) {
         }
     });
 }
-
+//--------------------------------------------------------------------------------------------------------
 
 //  Authenctication State
 onAuthStateChanged(auth, (user) => {

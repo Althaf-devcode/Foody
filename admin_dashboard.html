@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodAdmin – Dashboard</title>
+    <link rel="stylesheet" href="admin_dashboard.css">
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <header class="navbar">
+        <a class="logo" href="index.html">
+            <div class="logo-icon">🍽️</div>
+            <span class="logo-text">Food<span>Admin</span></span>
+        </a>
+        <div class="navbar-center">
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="#">Menu</a>
+                <a href="#">Orders</a>
+                <a href="#">Contact</a>
+            </nav>
+        </div>
+        <div class="navbar-right">
+            <button class="notif-btn" title="Notifications">🔔<span class="notif-dot"></span></button>
+            <button class="logout-btn" id="logoutBtn"><span>⏻</span> Logout</button>
+        </div>
+    </header>
+
+    <div class="app-layout">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar">
+            <div class="sidebar-profile">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="profile-avatar" alt="Admin">
+                <p class="sidebar-name" id="adminName">Admin</p>
+                <span class="role-badge">Administrator</span>
+            </div>
+            <ul class="sidebar-nav">
+                <li class="active" data-section="dashboard"><span class="nav-icon">📊</span> Dashboard</li>
+                <li data-section="orders"><span class="nav-icon">📋</span> Orders</li>
+                <li data-section="menu"><span class="nav-icon">🍕</span> Menu Items</li>
+                <li data-section="add-item"><span class="nav-icon">➕</span> Add Food Item</li>
+                <li data-section="users"><span class="nav-icon">👥</span> Users</li>
+            </ul>
+            <div class="sidebar-footer">FoodAdmin v2.0</div>
+        </aside>
+
+        <!-- ===== MAIN ===== -->
+        <main class="main">
+
+            <!-- ======================== DASHBOARD ======================== -->
+            <section id="sec-dashboard" class="section active">
+                <div class="page-header">
+                    <h2>Dashboard Overview</h2>
+                    <p>Welcome back! Here's what's happening today.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap">📋</div>
+                        <div class="stat-body">
+                            <div class="stat-value" id="totalOrders">0</div>
+                            <div class="stat-label">Total Orders</div>
+                            <div class="stat-trend trend-neutral">All time</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap">⏳</div>
+                        <div class="stat-body">
+                            <div class="stat-value" id="pendingOrders">0</div>
+                            <div class="stat-label">Pending Orders</div>
+                            <div class="stat-trend trend-neutral">Awaiting action</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap">🍔</div>
+                        <div class="stat-body">
+                            <div class="stat-value" id="totalMenuItems">0</div>
+                            <div class="stat-label">Menu Items</div>
+                            <div class="stat-trend trend-neutral">Active listings</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrap">💰</div>
+                        <div class="stat-body">
+                            <div class="stat-value" id="totalRevenue">Rs.0</div>
+                            <div class="stat-label">Total Revenue</div>
+                            <div class="stat-trend trend-up">Delivered orders</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-mid">
+                    <div class="card">
+                        <div class="card-inner">
+                            <div class="card-title"><div class="card-title-icon">📋</div>Recent Orders</div>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th></tr>
+                                </thead>
+                                <tbody id="recentOrdersBody">
+                                    <tr><td colspan="4" class="no-data">Loading orders…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-inner">
+                            <div class="card-title"><div class="card-title-icon">🔔</div>Payment Activity</div>
+                            <div class="activity-feed" id="paymenthisContainer">
+                                <div class="no-data">Loading activity…</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-bottom">
+                    <div class="card">
+                        <div class="card-inner">
+                            <div class="card-title"><div class="card-title-icon">📊</div>Status Breakdown</div>
+                            <div class="breakdown-list">
+                                <div class="breakdown-row">
+                                    <div class="breakdown-label">
+                                        <span class="badge badge-pending">⏳ Pending</span>
+                                        <span class="breakdown-count" id="countPending">0</span>
+                                    </div>
+                                    <div class="bar-track"><div class="bar-fill bar-pending" id="barPending" style="width:0%"></div></div>
+                                </div>
+                                <div class="breakdown-row">
+                                    <div class="breakdown-label">
+                                        <span class="badge badge-preparing">🍳 Preparing</span>
+                                        <span class="breakdown-count" id="countPreparing">0</span>
+                                    </div>
+                                    <div class="bar-track"><div class="bar-fill bar-preparing" id="barPreparing" style="width:0%"></div></div>
+                                </div>
+                                <div class="breakdown-row">
+                                    <div class="breakdown-label">
+                                        <span class="badge badge-ready">✅ Ready</span>
+                                        <span class="breakdown-count" id="countReady">0</span>
+                                    </div>
+                                    <div class="bar-track"><div class="bar-fill bar-ready" id="barReady" style="width:0%"></div></div>
+                                </div>
+                                <div class="breakdown-row">
+                                    <div class="breakdown-label">
+                                        <span class="badge badge-delivered">🚚 Delivered</span>
+                                        <span class="breakdown-count" id="countDelivered">0</span>
+                                    </div>
+                                    <div class="bar-track"><div class="bar-fill bar-delivered" id="barDelivered" style="width:0%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <!-- ======================== ORDERS ======================== -->
+            <section id="sec-orders" class="section">
+                <div class="page-header">
+                    <h2>All Orders</h2>
+                    <p>View, search, and update every customer order.</p>
+                </div>
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="section-header">
+                            <h2>📋 Order List</h2>
+                            <div class="filter-row">
+                                <select id="orderStatusFilter" class="filter-input">
+                                    <option value="">All Statuses</option>
+                                    <option value="Pending">⏳ Pending</option>
+                                    <option value="Preparing">🍳 Preparing</option>
+                                    <option value="Ready">✅ Ready</option>
+                                    <option value="Delivered">🚚 Delivered</option>
+                                </select>
+                                <input type="text" id="orderSearch" class="filter-input" placeholder="🔍 Search customer…">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th><th>Update</th></tr>
+                            </thead>
+                            <tbody id="allOrdersBody">
+                                <tr><td colspan="7" class="no-data">Loading orders…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================== MENU ======================== -->
+            <section id="sec-menu" class="section">
+                <div class="page-header">
+                    <h2>Menu Items</h2>
+                    <p>Browse, edit, or remove items from your menu.</p>
+                </div>
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="section-header">
+                            <h2>🍕 All Items</h2>
+                            <input type="text" id="menuSearch" class="filter-input" placeholder="🔍 Search menu…">
+                        </div>
+                        <div class="menu-grid" id="menuGrid">
+                            <p class="no-data">Loading menu items…</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================== ADD FOOD ITEM ======================== -->
+            <section id="sec-add-item" class="section">
+                <div class="page-header">
+                    <h2>Add Food Item</h2>
+                    <p>Fill in the details below to add or edit a menu item.</p>
+                </div>
+
+                <div class="add-item-layout">
+
+                    <!-- Form Card -->
+                    <div class="card" id="addFoodCard">
+                        <div class="card-inner">
+                            <div class="card-title">
+                                <div class="card-title-icon">➕</div>
+                                <span id="formTitle">Add New Food Item</span>
+                            </div>
+
+                            <input type="hidden" id="editItemId">
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Food Name *</label>
+                                    <input type="text" id="foodName" placeholder="e.g. Margherita Pizza">
+                                </div>
+                                <div class="form-group">
+                                    <label>Category *</label>
+                                    <select id="foodCategory">
+                                        <option value="">Select Category</option>
+                                        <option value="Pizza">🍕 Pizza</option>
+                                        <option value="Burger">🍔 Burger</option>
+                                        <option value="Rice">🍚 Rice</option>
+                                        <option value="Noodles">🍜 Noodles</option>
+                                        <option value="Drinks">🥤 Drinks</option>
+                                        <option value="Desserts">🍰 Desserts</option>
+                                        <option value="Salads">🥗 Salads</option>
+                                        <option value="Kottu">🫕 Kottu</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Price (Rs.) *</label>
+                                    <input type="number" id="foodPrice" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Image URL *</label>
+                                    <input type="url" id="foodImage" placeholder="https://…">
+                                </div>
+                                <div class="form-group span-2">
+                                    <label>Description *</label>
+                                    <textarea id="foodDesc" rows="4" placeholder="Describe the dish…"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Available</label>
+                                    <select id="foodAvailable">
+                                        <option value="true">✅ Yes</option>
+                                        <option value="false">❌ No</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button class="btn-primary" id="saveItemBtn">💾 Save Item</button>
+                                <button class="btn-secondary" id="clearFormBtn">✕ Clear</button>
+                            </div>
+
+                            <div id="formMsg" class="form-msg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Card -->
+                    <div class="card preview-card">
+                        <div class="card-inner">
+                            <div class="card-title">
+                                <div class="card-title-icon">👁️</div>
+                                Live Preview
+                            </div>
+                            <div class="preview-box" id="previewBox">
+                                <div class="preview-empty">
+                                    <div class="preview-empty-icon">🍽️</div>
+                                    <p>Fill in the form to see a preview of your menu card.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ======================== USERS ======================== -->
+            <section id="sec-users" class="section">
+                <div class="page-header">
+                    <h2>Registered Users</h2>
+                    <p>All customer accounts in the system.</p>
+                </div>
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-title"><div class="card-title-icon">👥</div>User Accounts</div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>UID</th><th>Name</th><th>Email</th><th>Orders</th></tr>
+                            </thead>
+                            <tbody id="usersBodyFull">
+                                <tr><td colspan="4" class="no-data">Loading users…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Order Details</h3>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script type="module" src="admin_dashboard.js"></script>
+</body>
+</html>
