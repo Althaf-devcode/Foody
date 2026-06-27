@@ -63,6 +63,8 @@ if (signupBtn) {
 
 
 // Login
+import { getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
 const signinBtn = document.getElementById("signin-btn");
 
 if (signinBtn) {
@@ -73,15 +75,34 @@ if (signinBtn) {
 
         try {
 
-            await signInWithEmailAndPassword(
+            const userCredential = await signInWithEmailAndPassword(
                 auth,
                 email,
                 password
             );
 
-            alert("Sign in successful");
+            const user = userCredential.user;
 
-            window.location.href = "index.html";
+            //  Get user document from Firestore
+            const docRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+
+                const userData = docSnap.data();
+
+                alert("Sign in successful");
+
+                // Redirect based on role
+                if (userData.role === "admin") {
+                    window.location.href = "admin_dashboard.html";
+                } else {
+                    window.location.href = "index.html";
+                }
+
+            } else {
+                alert("No user data found");
+            }
 
         } catch (err) {
             alert(err.message);
