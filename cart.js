@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
 
 import {
     collection,
@@ -8,11 +8,18 @@ import {
     deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
 const cartContainer = document.getElementById("cart-container");
 
-async function loadCart() {
+// Load Cart
+async function loadCart(user) {
 
-    const snapshot = await getDocs(collection(db, "cart"));
+    const snapshot = await getDocs(
+        collection(db, "users", user.uid, "cart")
+    );
 
     cartContainer.innerHTML = "";
 
@@ -30,7 +37,13 @@ async function loadCart() {
         `;
 
         document.getElementById("subtotal").innerText = "Rs. 0";
-        document.getElementById("total").innerText = "Rs. 0";
+        document.getElementById("total").innerText = "Rs. 200";
+
+        const cartCount = document.querySelector(".cart-count");
+
+        if (cartCount) {
+            cartCount.innerText = "0";
+        }
 
         return;
     }
@@ -53,7 +66,7 @@ async function loadCart() {
 
         subtotal += itemTotal;
 
-       cartContainer.innerHTML += `
+        cartContainer.innerHTML += `
 <div class="cart-item">
 
     <div class="left-section">
@@ -61,6 +74,7 @@ async function loadCart() {
         <img src="${item.image}" alt="${item.name}">
 
         <div class="item-info">
+
             <h3>${item.name}</h3>
 
             <p>Fresh & Delicious Food</p>
@@ -68,106 +82,117 @@ async function loadCart() {
             <div class="item-price">
                 Rs. ${price.toLocaleString()}
             </div>
+
         </div>
 
     </div>
 
     <div class="right-section">
 
-     <div class="action-row">
+        <div class="action-row">
 
-        <button class="remove-btn"
-            data-id="${cartDoc.id}">
-            <i class="ri-delete-bin-6-line"></i>
-        </button>
-
-        <div class="quantity-box">
-
-            <button class="decrease-btn"
-                data-id="${cartDoc.id}"
-                data-qty="${item.quantity}">
-                -
+            <button class="remove-btn"
+                data-id="${cartDoc.id}">
+                <i class="ri-delete-bin-6-line"></i>
             </button>
 
-            <span>${item.quantity}</span>
+            <div class="quantity-box">
 
-            <button class="increase-btn"
-                data-id="${cartDoc.id}"
-                data-qty="${item.quantity}">
-                +
-            </button>
+                <button class="decrease-btn"
+                    data-id="${cartDoc.id}"
+                    data-qty="${item.quantity}">
+                    -
+                </button>
 
+                <span>${item.quantity}</span>
+
+                <button class="increase-btn"
+                    data-id="${cartDoc.id}"
+                    data-qty="${item.quantity}">
+                    +
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="item-total">
+            Rs. ${itemTotal.toLocaleString()}
         </div>
 
     </div>
 
-    <div class="item-total">
-        Rs. ${itemTotal.toLocaleString()}
-    </div>
-
-</div>
-
 </div>
 `;
-
     });
 
-    // Increase Button
+    // Increase Quantity
     document.querySelectorAll(".increase-btn").forEach(btn => {
 
-        btn.addEventListener("click", async () => {
+        btn.onclick = async () => {
 
             const id = btn.dataset.id;
             const qty = Number(btn.dataset.qty);
 
-            await updateDoc(doc(db, "cart", id), {
-                quantity: qty + 1
-            });
+            await updateDoc(
+                doc(db, "users", user.uid, "cart", id),
+                {
+                    quantity: qty + 1
+                }
+            );
 
-            loadCart();
-        });
+            loadCart(user);
+        };
 
     });
 
-    // Decrease Button
+    // Decrease Quantity
     document.querySelectorAll(".decrease-btn").forEach(btn => {
 
-        btn.addEventListener("click", async () => {
+        btn.onclick = async () => {
 
             const id = btn.dataset.id;
             const qty = Number(btn.dataset.qty);
 
             if (qty > 1) {
 
-                await updateDoc(doc(db, "cart", id), {
-                    quantity: qty - 1
-                });
+                await updateDoc(
+                    doc(db, "users", user.uid, "cart", id),
+                    {
+                        quantity: qty - 1
+                    }
+                );
 
             } else {
 
-                await deleteDoc(doc(db, "cart", id));
+                await deleteDoc(
+                    doc(db, "users", user.uid, "cart", id)
+                );
+
             }
 
-            loadCart();
-        });
+            loadCart(user);
+        };
 
     });
 
-    // Remove Button
+    // Remove Item
     document.querySelectorAll(".remove-btn").forEach(btn => {
 
-        btn.addEventListener("click", async () => {
+        btn.onclick = async () => {
 
             const id = btn.dataset.id;
 
-            await deleteDoc(doc(db, "cart", id));
+            await deleteDoc(
+                doc(db, "users", user.uid, "cart", id)
+            );
 
-            loadCart();
-        });
+            loadCart(user);
+        };
 
     });
 
-    // Navbar Count
+    // Cart Count
     const cartCount = document.querySelector(".cart-count");
 
     if (cartCount) {
@@ -176,7 +201,6 @@ async function loadCart() {
 
     // Summary
     const deliveryFee = 200;
-
     const total = subtotal + deliveryFee;
 
     document.getElementById("subtotal").innerText =
@@ -186,5 +210,18 @@ async function loadCart() {
         "Rs. " + total.toLocaleString();
 }
 
-// Load Cart
-loadCart();
+// Wait until Firebase knows the logged-in user
+onAuthStateChanged(auth, (user) => {
+
+    if (user) {
+
+        loadCart(user);
+
+    } else {
+
+        alert("Please login first.");
+        window.location.href = "signin.html";
+
+    }
+
+});

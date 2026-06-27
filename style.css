@@ -397,9 +397,7 @@ body{
 }
 
 /* Cart section */
-/* =========================
-   CART PAGE
-========================= */
+
 
 .cart-page{
     max-width:1200px;
@@ -413,9 +411,7 @@ body{
     margin-bottom:30px;
 }
 
-/* =========================
-   CART ITEM
-========================= */
+/*CART ITEM */
 
 .cart-item{
     display:flex;
