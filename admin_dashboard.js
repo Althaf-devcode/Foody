@@ -16,6 +16,17 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
 
+
+// ── Global helper ─────────────────────────
+const toNumber = price => parseFloat(String(price).replace(/,/g, "").replace(/[^0-9.]/g, "")) || 0;
+
+// Format orderedItems array into a readable string
+function formatItems(order) {
+    const items = order.orderedItems || order.items || [];
+    return items.map(i => `${i.name} ×${i.quantity || i.qty || 1}`).join(", ") || "—";
+}
+
+
 // ─────────────────────────────────────────────
 //  🔒  AUTH GUARD
 // ─────────────────────────────────────────────
@@ -86,9 +97,11 @@ async function loadDashboard() {
     const preparing = orders.filter(o => o.status === "Preparing").length;
     const ready     = orders.filter(o => o.status === "Ready").length;
     const delivered = orders.filter(o => o.status === "Delivered").length;
-    const revenue   = orders
-        .filter(o => o.status === "Delivered")
-        .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+
+    // Revenue: sum all orders (Paid status or any status — adjust as needed)
+    const revenue = orders
+        .filter(o => o.status === "Paid" || o.paymentMethod)   // include all that have a payment
+        .reduce((sum, o) => sum + toNumber(o.totalAmount), 0);
 
     setText("totalOrders",    total);
     setText("pendingOrders",  pending);
@@ -100,14 +113,23 @@ async function loadDashboard() {
     setBar("barReady",     "countReady",     ready,     total);
     setBar("barDelivered", "countDelivered", delivered, total);
 
-    const recent = [...orders].reverse().slice(0, 5);
+    // Recent orders — show last 5
+    const recent = [...orders]
+        .sort((a, b) => {
+            // Sort by createdAt descending if available
+            const aTime = a.createdAt?.seconds || 0;
+            const bTime = b.createdAt?.seconds || 0;
+            return bTime - aTime;
+        })
+        .slice(0, 5);
+
     const tbody = document.getElementById("recentOrdersBody");
     tbody.innerHTML = recent.length
         ? recent.map(o => `
             <tr>
                 <td><span class="order-id">${o.id.slice(0, 8).toUpperCase()}</span></td>
                 <td>${o.customerName || "—"}</td>
-                <td>Rs.${Number(o.total || 0).toLocaleString()}</td>
+                <td>Rs.${toNumber(o.totalAmount).toLocaleString()}</td>
                 <td>${statusBadge(o.status)}</td>
             </tr>`).join("")
         : `<tr><td colspan="4" class="no-data">No orders yet.</td></tr>`;
@@ -121,7 +143,7 @@ async function loadDashboard() {
                     <div class="activity-title">Order from ${o.customerName || "Customer"}</div>
                     <div class="activity-meta">
                         #${o.id.slice(0, 8).toUpperCase()} &nbsp;·&nbsp;
-                        Rs.${Number(o.total || 0).toLocaleString()} &nbsp;·&nbsp; ${o.status || "Pending"}
+                        Rs.${toNumber(o.totalAmount).toLocaleString()} &nbsp;·&nbsp; ${o.paymentMethod || "—"} &nbsp;·&nbsp; ${o.status || "Pending"}
                     </div>
                 </div>
             </div>`).join("")
@@ -148,14 +170,15 @@ function renderOrders(orders) {
 
     tbody.innerHTML = orders.length
         ? orders.map(o => {
-            const items = (o.items || []).map(i => `${i.name} ×${i.qty || 1}`).join(", ") || "—";
+            // Support both orderedItems (your Firestore field) and items (legacy)
+            const itemsStr = formatItems(o);
             return `
             <tr>
                 <td><span class="order-id">${o.id.slice(0, 8).toUpperCase()}</span></td>
                 <td>${o.customerName || "—"}</td>
-                <td>${o.phone || "—"}</td>
-                <td class="items-cell">${items}</td>
-                <td>Rs.${Number(o.total || 0).toLocaleString()}</td>
+                <td>${o.phone || o.address || "—"}</td>
+                <td class="items-cell">${itemsStr}</td>
+                <td>Rs.${toNumber(o.totalAmount).toLocaleString()}</td>
                 <td>${statusBadge(o.status)}</td>
                 <td>
                     <select class="status-select" data-id="${o.id}">
@@ -163,6 +186,7 @@ function renderOrders(orders) {
                         <option value="Preparing" ${o.status === "Preparing" ? "selected" : ""}>🍳 Preparing</option>
                         <option value="Ready"     ${o.status === "Ready"     ? "selected" : ""}>✅ Ready</option>
                         <option value="Delivered" ${o.status === "Delivered" ? "selected" : ""}>🚚 Delivered</option>
+                        <option value="Paid"      ${o.status === "Paid"      ? "selected" : ""}>💰 Paid</option>
                     </select>
                 </td>
             </tr>`;
@@ -199,7 +223,7 @@ let allMenuItems = [];
 
 async function loadMenuItems() {
     const snap = await getDocs(collection(db, "foods"));
-    allMenuItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allMenuItems = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     renderMenu(allMenuItems);
 }
 
@@ -207,32 +231,44 @@ function renderMenu(items) {
     const grid = document.getElementById("menuGrid");
     if (!grid) return;
 
-    grid.innerHTML = items.length
-        ? items.map(item => `
-            <div class="menu-card">
-                <div class="menu-img-wrap">
-                    <img src="${item.image || ''}" alt="${item.name}" class="menu-img"
-                         onerror="this.src='https://via.placeholder.com/200x130?text=No+Image'">
-                    <span class="menu-cat-tag">${item.category || "—"}</span>
-                </div>
-                <div class="menu-body">
-                    <div class="menu-name" title="${item.name}">${item.name}</div>
-                    <div class="menu-desc">${item.description || "No description."}</div>
-                    <div class="menu-price">Rs. ${Number(item.price || 0).toLocaleString()}<span> / serving</span></div>
-                </div>
-                <div class="menu-actions">
-                    <button class="btn-edit"   onclick="editItem('${item.id}')">✏️ Edit</button>
-                    <button class="btn-delete" onclick="deleteItem('${item.id}', '${(item.name || "").replace(/'/g, "\\'")}')">🗑️ Delete</button>
-                </div>
-            </div>`).join("")
-        : `<p class="no-data">No menu items yet. Add one!</p>`;
+    if (items.length === 0) {
+        grid.innerHTML = `<p class="no-data">No menu items yet. Add one!</p>`;
+        return;
+    }
+
+    grid.innerHTML = items.map(item => createMenuCard(item)).join("");
+}
+
+function createMenuCard(item) {
+    return `
+        <div class="menu-card">
+            <div class="menu-img-wrap">
+                <img 
+                    src="${item.image}" 
+                    alt="${item.name}" 
+                    class="menu-img"
+                    onerror="this.src='https://via.placeholder.com/200x130?text=No+Image'"
+                >
+                <span class="menu-cat-tag">${item.category}</span>
+            </div>
+            <div class="menu-body">
+                <div class="menu-name">${item.name}</div>
+                <div class="menu-desc">${item.description}</div>
+                <div class="menu-price">Rs. ${toNumber(item.price).toLocaleString()} <span>/ serving</span></div>
+            </div>
+            <div class="menu-actions">
+                <button class="btn-edit"   onclick="editItem('${item.id}')">✏️ Edit</button>
+                <button class="btn-delete" onclick="deleteItem('${item.id}', '${item.name.replace(/'/g, "\\'")}')">🗑️ Delete</button>
+            </div>
+        </div>
+    `;
 }
 
 document.getElementById("menuSearch")?.addEventListener("input", (e) => {
-    const q = e.target.value.toLowerCase();
-    renderMenu(allMenuItems.filter(i =>
-        (i.name || "").toLowerCase().includes(q) ||
-        (i.category || "").toLowerCase().includes(q)
+    const query = e.target.value.toLowerCase();
+    renderMenu(allMenuItems.filter(item =>
+        item.name.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query)
     ));
 });
 
@@ -276,14 +312,13 @@ function updatePreview() {
                 <div class="menu-footer">
                     <div class="menu-price">Rs. ${price ? Number(price).toLocaleString() : "0"}</div>
                     <span class="menu-avail ${avail === 'true' ? 'avail-yes' : 'avail-no'}">
-                        ${avail === 'true' ? '✅ Available' : '❌ Unavailable'}
+                        ${avail === 'true' ? 'Available' : 'Unavailable'}
                     </span>
                 </div>
             </div>
         </div>`;
 }
 
-// Attach preview listeners
 ["foodName", "foodPrice", "foodCategory", "foodImage", "foodDesc", "foodAvailable"].forEach(id => {
     document.getElementById(id)?.addEventListener("input", updatePreview);
     document.getElementById(id)?.addEventListener("change", updatePreview);
@@ -311,19 +346,19 @@ document.getElementById("saveItemBtn")?.addEventListener("click", async () => {
     try {
         if (editId) {
             await updateDoc(doc(db, "foods", editId), data);
-            showFormMsg("✅ Item updated successfully!", "success");
+            showFormMsg("Item updated successfully!", "success");
             showToast("Menu item updated.", "success");
         } else {
             data.createdAt = serverTimestamp();
             await addDoc(collection(db, "foods"), data);
-            showFormMsg("✅ Item added successfully!", "success");
+            showFormMsg("Item added successfully!", "success");
             showToast("New item added to menu.", "success");
         }
         clearForm();
         loadMenuItems();
         loadDashboard();
     } catch (err) {
-        showFormMsg("❌ Error: " + err.message, "error");
+        showFormMsg("Error: " + err.message, "error");
     }
 });
 
@@ -361,7 +396,6 @@ window.editItem = async (id) => {
     document.getElementById("foodDesc").value     = d.description || "";
     setText("formTitle", "✏️ Edit Food Item");
 
-    // Navigate to add-item section
     document.querySelectorAll(".sidebar-nav li").forEach(l => l.classList.remove("active"));
     document.querySelector('[data-section="add-item"]').classList.add("active");
     showSection("add-item");
@@ -382,35 +416,53 @@ window.deleteItem = async (id, name) => {
 
 
 // ─────────────────────────────────────────────
-//  👥  USERS
+//  👥  USERS  (with cart subcollection)
 // ─────────────────────────────────────────────
 async function loadUsers() {
     const snap = await getDocs(collection(db, "users"));
 
-    const renderUsers = (tbodyId) => {
-        const tbody = document.getElementById(tbodyId);
-        if (!tbody) return;
+    const tbody = document.getElementById("usersBodyFull");
+    if (!tbody) return;
 
-        if (snap.empty) {
-            tbody.innerHTML = `<tr><td colspan="4" class="no-data">No users found.</td></tr>`;
-            return;
-        }
+    if (snap.empty) {
+        tbody.innerHTML = `<tr><td colspan="5" class="no-data">No users found.</td></tr>`;
+        return;
+    }
 
-        tbody.innerHTML = snap.docs.map(d => {
-            const u = d.data();
-            const initial = (u.name || u.email || "?")[0].toUpperCase();
-            return `
-            <tr>
-                <td><span class="order-id">${d.id.slice(0, 10)}…</span></td>
-                <td><span class="user-avatar">${initial}</span>${u.name || u.displayName || "—"}</td>
-                <td>${u.email || "—"}</td>
-                <td>${u.orderCount || 0}</td>
-            </tr>`;
-        }).join("");
-    };
+    // Fetch cart counts in parallel for all users
+    const userRows = await Promise.all(snap.docs.map(async (d) => {
+        const u = d.data();
+        const initial = (u.name || u.email || "?")[0].toUpperCase();
 
-    renderUsers("usersBody");
-    renderUsers("usersBodyFull");
+        // Count cart items (subcollection inside users/{uid}/cart)
+        let cartQty = 0;
+        try {
+            const cartSnap = await getDocs(collection(db, "users", d.id, "cart"));
+            cartSnap.docs.forEach(cartDoc => {
+                const item = cartDoc.data();
+                cartQty += item.quantity || 1;
+            });
+        } catch (_) { /* cart might not exist */ }
+
+        // Count orders for this user
+        const userOrders = allOrders.filter(o => o.customerName === u.email || o.uid === d.id);
+
+        return `
+        <tr>
+            <td><span class="order-id">${d.id.slice(0, 10)}…</span></td>
+            <td><span class="user-avatar">${initial}</span>${u.name || u.displayName || "—"}</td>
+            <td>${u.email || "—"}</td>
+            <td>${userOrders.length}</td>
+            <td>
+                ${cartQty > 0
+                    ? `<span class="badge badge-pending">🛒 ${cartQty} item${cartQty !== 1 ? "s" : ""}</span>`
+                    : `<span style="color:var(--text-muted);font-size:12px">Empty</span>`
+                }
+            </td>
+        </tr>`;
+    }));
+
+    tbody.innerHTML = userRows.join("");
 }
 
 
@@ -429,8 +481,8 @@ document.getElementById("modalOverlay")?.addEventListener("click", (e) => {
 //  🛠️  HELPERS
 // ─────────────────────────────────────────────
 function statusBadge(status) {
-    const cls  = { Pending: "badge-pending", Preparing: "badge-preparing", Ready: "badge-ready", Delivered: "badge-delivered" };
-    const icon = { Pending: "⏳", Preparing: "🍳", Ready: "✅", Delivered: "🚚" };
+    const cls  = { Pending: "badge-pending", Preparing: "badge-preparing", Ready: "badge-ready", Delivered: "badge-delivered", Paid: "badge-delivered" };
+    const icon = { Pending: "⏳", Preparing: "🍳", Ready: "✅", Delivered: "🚚", Paid: "💰" };
     const c = cls[status] || "badge-pending";
     return `<span class="badge ${c}">${icon[status] || ""} ${status || "Pending"}</span>`;
 }

@@ -17,13 +17,12 @@
         <div class="navbar-center">
             <nav>
                 <a href="index.html">Home</a>
-                <a href="#">Menu</a>
+                <a href="">Menu</a>
                 <a href="#">Orders</a>
                 <a href="#">Contact</a>
             </nav>
         </div>
-        <div class="navbar-right">
-            <button class="notif-btn" title="Notifications">🔔<span class="notif-dot"></span></button>
+        <div class="navbar-right">   
             <button class="logout-btn" id="logoutBtn"><span>⏻</span> Logout</button>
         </div>
     </header>
@@ -181,7 +180,7 @@
                     <div class="table-wrap">
                         <table>
                             <thead>
-                                <tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th><th>Update</th></tr>
+                                <tr><th>Order ID</th><th>Customer</th><th>Address</th><th>Items</th><th>Total</th><th>Status</th><th>Update</th></tr>
                             </thead>
                             <tbody id="allOrdersBody">
                                 <tr><td colspan="7" class="no-data">Loading orders…</td></tr>
@@ -263,8 +262,8 @@
                                 <div class="form-group">
                                     <label>Available</label>
                                     <select id="foodAvailable">
-                                        <option value="true">✅ Yes</option>
-                                        <option value="false">❌ No</option>
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
                                     </select>
                                 </div>
                             </div>
@@ -310,7 +309,7 @@
                     <div class="table-wrap">
                         <table>
                             <thead>
-                                <tr><th>UID</th><th>Name</th><th>Email</th><th>Orders</th></tr>
+                                <tr><th>UID</th><th>Name</th><th>Email</th><th>Orders</th><th>cart quantity</th></tr>
                             </thead>
                             <tbody id="usersBodyFull">
                                 <tr><td colspan="4" class="no-data">Loading users…</td></tr>

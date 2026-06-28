@@ -220,7 +220,7 @@ body {
 .logo-icon {
     width: 36px;
     height: 36px;
-    background: var(--gold);
+    background: var(--orange);
     border-radius: 10px;
     display: grid;
     place-items: center;
@@ -243,7 +243,7 @@ body {
 }
 
 .navbar-center nav a {
-    color: rgba(255,255,255,0.65);
+    color: var(--gold);
     text-decoration: none;
     font-size: 13.5px;
     font-weight: 500;
@@ -261,31 +261,6 @@ body {
     display: flex;
     align-items: center;
     gap: 14px;
-}
-
-.notif-btn {
-    width: 36px;
-    height: 36px;
-    background: rgba(255,255,255,0.08);
-    border: none;
-    border-radius: var(--radius-sm);
-    color: var(--white);
-    font-size: 18px;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    position: relative;
-    transition: background var(--transition);
-}
-.notif-btn:hover { background: rgba(255,255,255,0.15); }
-
-.notif-dot {
-    position: absolute;
-    top: 5px; right: 6px;
-    width: 8px; height: 8px;
-    background: var(--gold);
-    border-radius: 50%;
-    border: 2px solid var(--navy);
 }
 
 .logout-btn {
@@ -1187,3 +1162,4 @@ td.items-cell {
     .navbar-center { display: none; }
     .stat-value { font-size: 22px; }
 }
+
