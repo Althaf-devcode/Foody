@@ -6,6 +6,7 @@ fetch("navbar.html")
 
         // After navbar is loaded → attach events
         setupNavbar();
+        window.dispatchEvent(new Event("navbarLoaded"));
     });
 
 function setupNavbar() {

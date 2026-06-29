@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <!-- ===== NAVBAR ===== -->
+    <!-- NAVBAR -->
     <header class="navbar">
         <a class="logo" href="index.html">
             <div class="logo-icon">🍽️</div>
@@ -17,19 +17,18 @@
         <div class="navbar-center">
             <nav>
                 <a href="index.html">Home</a>
-                <a href="">Menu</a>
-                <a href="#">Orders</a>
+                <a href="#">Menu</a>
                 <a href="#">Contact</a>
             </nav>
         </div>
-        <div class="navbar-right">   
+        <div class="navbar-right">
             <button class="logout-btn" id="logoutBtn"><span>⏻</span> Logout</button>
         </div>
     </header>
 
     <div class="app-layout">
 
-        <!-- ===== SIDEBAR ===== -->
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="sidebar-profile">
                 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="profile-avatar" alt="Admin">
@@ -38,7 +37,7 @@
             </div>
             <ul class="sidebar-nav">
                 <li class="active" data-section="dashboard"><span class="nav-icon">📊</span> Dashboard</li>
-                <li data-section="orders"><span class="nav-icon">📋</span> Orders</li>
+                <li data-section="orders"><span class="nav-icon">📋</span> Order List</li>
                 <li data-section="menu"><span class="nav-icon">🍕</span> Menu Items</li>
                 <li data-section="add-item"><span class="nav-icon">➕</span> Add Food Item</li>
                 <li data-section="users"><span class="nav-icon">👥</span> Users</li>
@@ -46,16 +45,17 @@
             <div class="sidebar-footer">FoodAdmin v2.0</div>
         </aside>
 
-        <!-- ===== MAIN ===== -->
+        <!-- MAIN -->
         <main class="main">
 
-            <!-- ======================== DASHBOARD ======================== -->
+            <!-- DASHBOARD -->
             <section id="sec-dashboard" class="section active">
                 <div class="page-header">
                     <h2>Dashboard Overview</h2>
                     <p>Welcome back! Here's what's happening today.</p>
                 </div>
 
+                <!-- Row 1: 4 Stat Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon-wrap">📋</div>
@@ -86,20 +86,30 @@
                         <div class="stat-body">
                             <div class="stat-value" id="totalRevenue">Rs.0</div>
                             <div class="stat-label">Total Revenue</div>
-                            <div class="stat-trend trend-up">Delivered orders</div>
+                            <div class="stat-trend trend-up">Paid orders</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="dash-mid">
+                <!-- Row 2: Recent Orders + Payment Activity -->
+                <div class="dash-row-2">
+
                     <div class="card">
                         <div class="card-inner">
-                            <div class="card-title"><div class="card-title-icon">📋</div>Recent Orders</div>
+                            <div class="card-title">
+                                <div class="card-title-icon">📋</div>
+                                Recent Orders
+                            </div>
                         </div>
                         <div class="table-wrap">
                             <table>
                                 <thead>
-                                    <tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th></tr>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="recentOrdersBody">
                                     <tr><td colspan="4" class="no-data">Loading orders…</td></tr>
@@ -107,20 +117,30 @@
                             </table>
                         </div>
                     </div>
+
                     <div class="card">
                         <div class="card-inner">
-                            <div class="card-title"><div class="card-title-icon">🔔</div>Payment Activity</div>
+                            <div class="card-title">
+                                <div class="card-title-icon">🔔</div>
+                                Payment Activity
+                            </div>
                             <div class="activity-feed" id="paymenthisContainer">
                                 <div class="no-data">Loading activity…</div>
                             </div>
                         </div>
                     </div>
+
                 </div>
 
-                <div class="dash-bottom">
+                <!-- Row 3: Status Breakdown + Top Selling Items -->
+                <div class="dash-row-3">
+
                     <div class="card">
                         <div class="card-inner">
-                            <div class="card-title"><div class="card-title-icon">📊</div>Status Breakdown</div>
+                            <div class="card-title">
+                                <div class="card-title-icon">📊</div>
+                                Status Breakdown
+                            </div>
                             <div class="breakdown-list">
                                 <div class="breakdown-row">
                                     <div class="breakdown-label">
@@ -153,9 +173,23 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card">
+                        <div class="card-inner">
+                            <div class="card-title">
+                                <div class="card-title-icon">🏆</div>
+                                Top Selling Items
+                            </div>
+                            <div id="topItemsList">
+                                <p class="no-data">Loading…</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </section>
 
-            <!-- ======================== ORDERS ======================== -->
+            <!-- ORDERS -->
             <section id="sec-orders" class="section">
                 <div class="page-header">
                     <h2>All Orders</h2>
@@ -172,6 +206,7 @@
                                     <option value="Preparing">🍳 Preparing</option>
                                     <option value="Ready">✅ Ready</option>
                                     <option value="Delivered">🚚 Delivered</option>
+                                    <option value="Paid">💰 Paid</option>
                                 </select>
                                 <input type="text" id="orderSearch" class="filter-input" placeholder="🔍 Search customer…">
                             </div>
@@ -180,7 +215,15 @@
                     <div class="table-wrap">
                         <table>
                             <thead>
-                                <tr><th>Order ID</th><th>Customer</th><th>Address</th><th>Items</th><th>Total</th><th>Status</th><th>Update</th></tr>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Address</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Update</th>
+                                </tr>
                             </thead>
                             <tbody id="allOrdersBody">
                                 <tr><td colspan="7" class="no-data">Loading orders…</td></tr>
@@ -190,7 +233,7 @@
                 </div>
             </section>
 
-            <!-- ======================== MENU ======================== -->
+            <!-- MENU -->
             <section id="sec-menu" class="section">
                 <div class="page-header">
                     <h2>Menu Items</h2>
@@ -209,16 +252,14 @@
                 </div>
             </section>
 
-            <!-- ======================== ADD FOOD ITEM ======================== -->
+            <!-- ADD / EDIT FOOD ITEM -->
             <section id="sec-add-item" class="section">
                 <div class="page-header">
                     <h2>Add Food Item</h2>
                     <p>Fill in the details below to add or edit a menu item.</p>
                 </div>
-
                 <div class="add-item-layout">
 
-                    <!-- Form Card -->
                     <div class="card" id="addFoodCard">
                         <div class="card-inner">
                             <div class="card-title">
@@ -249,7 +290,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Price (Rs.) *</label>
-                                    <input type="number" id="foodPrice" placeholder="0">
+                                    <input type="number" id="foodPrice" placeholder="e.g. 850">
                                 </div>
                                 <div class="form-group">
                                     <label>Image URL *</label>
@@ -262,8 +303,8 @@
                                 <div class="form-group">
                                     <label>Available</label>
                                     <select id="foodAvailable">
-                                        <option value="true">Yes</option>
-                                        <option value="false">No</option>
+                                        <option value="true">✅ Yes</option>
+                                        <option value="false">❌ No</option>
                                     </select>
                                 </div>
                             </div>
@@ -272,12 +313,10 @@
                                 <button class="btn-primary" id="saveItemBtn">💾 Save Item</button>
                                 <button class="btn-secondary" id="clearFormBtn">✕ Clear</button>
                             </div>
-
                             <div id="formMsg" class="form-msg"></div>
                         </div>
                     </div>
 
-                    <!-- Preview Card -->
                     <div class="card preview-card">
                         <div class="card-inner">
                             <div class="card-title">
@@ -296,7 +335,7 @@
                 </div>
             </section>
 
-            <!-- ======================== USERS ======================== -->
+            <!-- USERS -->
             <section id="sec-users" class="section">
                 <div class="page-header">
                     <h2>Registered Users</h2>
@@ -304,15 +343,24 @@
                 </div>
                 <div class="card">
                     <div class="card-inner">
-                        <div class="card-title"><div class="card-title-icon">👥</div>User Accounts</div>
+                        <div class="card-title">
+                            <div class="card-title-icon">👥</div>
+                            User Accounts
+                        </div>
                     </div>
                     <div class="table-wrap">
                         <table>
                             <thead>
-                                <tr><th>UID</th><th>Name</th><th>Email</th><th>Orders</th><th>cart quantity</th></tr>
+                                <tr>
+                                    <th>UID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Orders</th>
+                                    <th>Cart Items</th>
+                                </tr>
                             </thead>
                             <tbody id="usersBodyFull">
-                                <tr><td colspan="4" class="no-data">Loading users…</td></tr>
+                                <tr><td colspan="5" class="no-data">Loading users…</td></tr>
                             </tbody>
                         </table>
                     </div>

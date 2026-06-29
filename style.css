@@ -56,8 +56,8 @@ body{
 /* Cart */
 
 .cart-icon{
-    position:relative;
     cursor:pointer;
+    position:relative;
 }
 
 .cart-icon i{
@@ -397,3 +397,290 @@ body{
 }
 
 /* Cart section */
+
+
+.cart-page{
+    max-width:1200px;
+    margin:40px auto;
+    padding:0 20px;
+}
+
+.cart-title{
+    font-size:42px;
+    font-weight:700;
+    margin-bottom:30px;
+}
+
+/*CART ITEM */
+
+.cart-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:#fff;
+    border:1px solid #e8e8e8;
+
+    border-radius:20px;
+    padding:25px 30px;
+    margin-bottom:20px;
+
+    transition:0.3s;
+}
+
+.cart-item:hover{
+    box-shadow:0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* LEFT SIDE */
+
+.left-section{
+    display:flex;
+    align-items:center;
+    flex:1;
+    gap:30px;
+}
+
+.item-info{
+    flex:1;
+    min-width:350px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+
+    text-align:left;
+}
+
+.cart-item img{
+    width:110px;
+    height:110px;
+    object-fit:cover;
+    border-radius:16px;
+}
+
+/* FOOD DETAILS */
+
+.item-info{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.item-info h3{
+    font-size:24px;
+    font-weight:600;
+    color:#111;
+    margin:0 0 8px 0;
+    line-height:1.4;
+}
+
+.item-price{
+    font-size:18px;
+    font-weight:500;
+    color:#666;
+    margin:0 0 15px 0;
+}
+
+/* ACTION ROW */
+
+.action-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+/* REMOVE BUTTON */
+
+.remove-btn{
+    width:38px;
+    height:38px;
+
+    border:none;
+    border-radius:50%;
+
+    background:#fff3f3;
+    color:#ef4444;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+    font-size:16px;
+
+    transition:0.3s;
+}
+
+.remove-btn:hover{
+    background:#ef4444;
+    color:#fff;
+}
+
+/* QUANTITY */
+
+.quantity-box{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    background:#f5f5f5;
+    border-radius:25px;
+
+    padding:4px 10px;
+    width:fit-content;
+}
+
+.quantity-box button{
+    width:25px;
+    height:25px;
+
+    border:none;
+    background:none;
+
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.quantity-box span{
+    width:20px;
+    text-align:center;
+    font-weight:500;
+}
+
+/* RIGHT SIDE */
+
+.right-section{
+    display:flex;
+    align-items:center;
+    gap:40px;
+}
+
+.action-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+/* ITEM TOTAL */
+
+.item-total{
+    min-width:150px;
+
+    text-align:right;
+
+    font-size:20px;
+    font-weight:400;
+    color:#232323;
+}
+
+/* =========================
+   SUMMARY
+========================= */
+
+.summary{
+    background:#fff;
+    border:1px solid #e5e5e5;
+    border-radius:20px;
+    padding:25px;
+}
+
+.summary .row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:18px;
+    font-size:20px;
+}
+
+.summary hr{
+    border:none;
+    border-top:1px solid #ddd;
+    margin:20px 0;
+}
+
+.summary .total{
+    font-size:25px;
+    font-weight:600;
+}
+
+/* =========================
+   CHECKOUT BUTTON
+========================= */
+
+.checkout-btn{
+    width:100%;
+    padding:18px;
+
+    border:none;
+    border-radius:40px;
+
+    background:#16a34a;
+    color:#fff;
+
+    font-size:20px;
+    font-weight:600;
+    cursor:pointer;
+
+    margin-top:20px;
+    transition:0.3s;
+}
+
+.checkout-btn:hover{
+    background:#15803d;
+}
+
+/* =========================
+   EMPTY CART
+========================= */
+
+.empty-cart{
+    background:#fff;
+    border:1px solid #e5e5e5;
+    border-radius:20px;
+    padding:60px;
+    text-align:center;
+}
+
+.empty-cart h2{
+    margin-bottom:10px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:768px){
+
+    .cart-title{
+        font-size:32px;
+    }
+
+    .cart-item{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:20px;
+    }
+
+    .left-section{
+        width:100%;
+    }
+
+    .right-section{
+        width:100%;
+        justify-content:flex-end;
+    }
+
+    .item-total{
+        font-size:24px;
+    }
+
+    .summary .row{
+        font-size:18px;
+    }
+
+    .summary .total{
+        font-size:24px;
+    }
+}

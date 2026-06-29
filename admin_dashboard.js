@@ -19,7 +19,6 @@ import {
 
 // ── Global helper ─────────────────────────
 const toNumber = price => parseFloat(String(price).replace(/,/g, "").replace(/[^0-9.]/g, "")) || 0;
-
 // Format orderedItems array into a readable string
 function formatItems(order) {
     const items = order.orderedItems || order.items || [];
@@ -92,10 +91,10 @@ async function loadDashboard() {
 
     const orders = ordersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    const total     = orders.length;
-    const pending   = orders.filter(o => o.status === "Pending").length;
+    const total = orders.length;
+    const pending = orders.filter(o => o.status === "Pending").length;
     const preparing = orders.filter(o => o.status === "Preparing").length;
-    const ready     = orders.filter(o => o.status === "Ready").length;
+    const ready = orders.filter(o => o.status === "Ready").length;
     const delivered = orders.filter(o => o.status === "Delivered").length;
 
     // Revenue: sum all orders (Paid status or any status — adjust as needed)
@@ -103,14 +102,14 @@ async function loadDashboard() {
         .filter(o => o.status === "Paid" || o.paymentMethod)   // include all that have a payment
         .reduce((sum, o) => sum + toNumber(o.totalAmount), 0);
 
-    setText("totalOrders",    total);
-    setText("pendingOrders",  pending);
+    setText("totalOrders", total);
+    setText("pendingOrders", pending);
     setText("totalMenuItems", menuSnap.size);
-    setText("totalRevenue",   "Rs." + revenue.toLocaleString());
+    setText("totalRevenue", "Rs." + revenue.toLocaleString());
 
-    setBar("barPending",   "countPending",   pending,   total);
+    setBar("barPending", "countPending", pending, total);
     setBar("barPreparing", "countPreparing", preparing, total);
-    setBar("barReady",     "countReady",     ready,     total);
+    setBar("barReady", "countReady", ready, total);
     setBar("barDelivered", "countDelivered", delivered, total);
 
     // Recent orders — show last 5
@@ -148,6 +147,27 @@ async function loadDashboard() {
                 </div>
             </div>`).join("")
         : `<div class="no-data">No recent activity.</div>`;
+    // ── Top Selling Items ─────────────────────
+    const itemCount = {};
+    orders.forEach(o => {
+    (o.orderedItems || []).forEach(i => {
+        itemCount[i.name] = (itemCount[i.name] || 0) + (i.quantity || 1);
+    });
+});
+
+    const topItems = Object.entries(itemCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+    const topList = document.getElementById("topItemsList");
+    topList.innerHTML = topItems.length
+        ? topItems.map(([name, qty], index) => `
+        <div class="top-item-row">
+            <span class="top-rank">#${index + 1}</span>
+            <span class="top-name">${name}</span>
+            <span class="top-qty">${qty} orders</span>
+        </div>`).join("")
+        : `<p class="no-data">No order data yet.</p>`;
 }
 
 
@@ -182,11 +202,11 @@ function renderOrders(orders) {
                 <td>${statusBadge(o.status)}</td>
                 <td>
                     <select class="status-select" data-id="${o.id}">
-                        <option value="Pending"   ${o.status === "Pending"   ? "selected" : ""}>⏳ Pending</option>
+                        <option value="Pending"   ${o.status === "Pending" ? "selected" : ""}>⏳ Pending</option>
                         <option value="Preparing" ${o.status === "Preparing" ? "selected" : ""}>🍳 Preparing</option>
-                        <option value="Ready"     ${o.status === "Ready"     ? "selected" : ""}>✅ Ready</option>
+                        <option value="Ready"     ${o.status === "Ready" ? "selected" : ""}>✅ Ready</option>
                         <option value="Delivered" ${o.status === "Delivered" ? "selected" : ""}>🚚 Delivered</option>
-                        <option value="Paid"      ${o.status === "Paid"      ? "selected" : ""}>💰 Paid</option>
+                        <option value="Paid"      ${o.status === "Paid" ? "selected" : ""}>💰 Paid</option>
                     </select>
                 </td>
             </tr>`;
@@ -277,13 +297,13 @@ document.getElementById("menuSearch")?.addEventListener("input", (e) => {
 //  ➕  LIVE PREVIEW
 // ─────────────────────────────────────────────
 function updatePreview() {
-    const name    = document.getElementById("foodName").value.trim();
-    const price   = document.getElementById("foodPrice").value;
-    const cat     = document.getElementById("foodCategory").value;
-    const image   = document.getElementById("foodImage").value.trim();
-    const desc    = document.getElementById("foodDesc").value.trim();
-    const avail   = document.getElementById("foodAvailable").value;
-    const box     = document.getElementById("previewBox");
+    const name = document.getElementById("foodName").value.trim();
+    const price = document.getElementById("foodPrice").value;
+    const cat = document.getElementById("foodCategory").value;
+    const image = document.getElementById("foodImage").value.trim();
+    const desc = document.getElementById("foodDesc").value.trim();
+    const avail = document.getElementById("foodAvailable").value;
+    const box = document.getElementById("previewBox");
 
     if (!name && !price && !cat) {
         box.innerHTML = `
@@ -329,12 +349,12 @@ function updatePreview() {
 //  ➕  SAVE FOOD
 // ─────────────────────────────────────────────
 document.getElementById("saveItemBtn")?.addEventListener("click", async () => {
-    const name     = document.getElementById("foodName").value.trim();
-    const price    = document.getElementById("foodPrice").value;
+    const name = document.getElementById("foodName").value.trim();
+    const price = document.getElementById("foodPrice").value;
     const category = document.getElementById("foodCategory").value;
-    const image    = document.getElementById("foodImage").value.trim();
-    const desc     = document.getElementById("foodDesc").value.trim();
-    const editId   = document.getElementById("editItemId").value;
+    const image = document.getElementById("foodImage").value.trim();
+    const desc = document.getElementById("foodDesc").value.trim();
+    const editId = document.getElementById("editItemId").value;
 
     if (!name || !category || !price || !image || !desc) {
         showFormMsg("Please fill in all required fields.", "error");
@@ -388,12 +408,12 @@ window.editItem = async (id) => {
     if (!snap.exists()) return;
 
     const d = snap.data();
-    document.getElementById("editItemId").value   = id;
-    document.getElementById("foodName").value     = d.name || "";
+    document.getElementById("editItemId").value = id;
+    document.getElementById("foodName").value = d.name || "";
     document.getElementById("foodCategory").value = d.category || "";
-    document.getElementById("foodPrice").value    = d.price || "";
-    document.getElementById("foodImage").value    = d.image || "";
-    document.getElementById("foodDesc").value     = d.description || "";
+    document.getElementById("foodPrice").value = d.price || "";
+    document.getElementById("foodImage").value = d.image || "";
+    document.getElementById("foodDesc").value = d.description || "";
     setText("formTitle", "✏️ Edit Food Item");
 
     document.querySelectorAll(".sidebar-nav li").forEach(l => l.classList.remove("active"));
@@ -455,9 +475,9 @@ async function loadUsers() {
             <td>${userOrders.length}</td>
             <td>
                 ${cartQty > 0
-                    ? `<span class="badge badge-pending">🛒 ${cartQty} item${cartQty !== 1 ? "s" : ""}</span>`
-                    : `<span style="color:var(--text-muted);font-size:12px">Empty</span>`
-                }
+                ? `<span class="badge badge-pending">🛒 ${cartQty} item${cartQty !== 1 ? "s" : ""}</span>`
+                : `<span style="color:var(--text-muted);font-size:12px">Empty</span>`
+            }
             </td>
         </tr>`;
     }));
@@ -481,7 +501,7 @@ document.getElementById("modalOverlay")?.addEventListener("click", (e) => {
 //  🛠️  HELPERS
 // ─────────────────────────────────────────────
 function statusBadge(status) {
-    const cls  = { Pending: "badge-pending", Preparing: "badge-preparing", Ready: "badge-ready", Delivered: "badge-delivered", Paid: "badge-delivered" };
+    const cls = { Pending: "badge-pending", Preparing: "badge-preparing", Ready: "badge-ready", Delivered: "badge-delivered", Paid: "badge-delivered" };
     const icon = { Pending: "⏳", Preparing: "🍳", Ready: "✅", Delivered: "🚚", Paid: "💰" };
     const c = cls[status] || "badge-pending";
     return `<span class="badge ${c}">${icon[status] || ""} ${status || "Pending"}</span>`;
