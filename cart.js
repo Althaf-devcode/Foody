@@ -219,7 +219,7 @@ onAuthStateChanged(auth, (user) => {
 
     } else {
 
-        alert("Please login first.");
+        alert("Logged out successfully");
         window.location.href = "signin.html";
 
     }

@@ -61,40 +61,42 @@
     </div>
 
     <!-- Load Navbar -->
-   <script type="module">
-import { db } from "./firebase.js";
-import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+    <script type="module">
+        import { db } from "./firebase.js";
+        import {
+            collection,
+            getDocs
+        } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-async function updateCartCount() {
+        async function updateCartCount() {
 
-    const snapshot = await getDocs(collection(db, "cart"));
+            const snapshot = await getDocs(collection(db, "cart"));
 
-    let totalItems = 0;
+            let totalItems = 0;
 
-    snapshot.forEach(doc => {
-        totalItems += doc.data().quantity;
-    });
+            snapshot.forEach(doc => {
+                totalItems += doc.data().quantity;
+            });
 
-    const cartCount = document.querySelector(".cart-count");
+            const cartCount = document.querySelector(".cart-count");
 
-    if (cartCount) {
-        cartCount.innerText = totalItems;
-    }
-}
+            if (cartCount) {
+                cartCount.innerText = totalItems;
+            }
+        }
 
-fetch("navbar.html")
-.then(response => response.text())
-.then(data => {
+        fetch("navbar.html")
+            .then(response => response.text())
+            .then(data => {
 
-    document.getElementById("navbar").innerHTML = data;
+                document.getElementById("navbar").innerHTML = data;
 
-    updateCartCount(); // update badge after navbar loads
-});
-</script>
-<script type="module" src="cart.js"></script>
+                updateCartCount(); // update badge after navbar loads
+            });
+    </script>
+    <script type="module" src="cart.js"></script>
+    <script type="module" src="script.js"></script>
+    <script type="module" src="authentication.js"></script>
 
 </body>
 
