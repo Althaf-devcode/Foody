@@ -8,7 +8,7 @@ import {
     getDocs
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-async function updateCartCount(user) {
+export async function updateCartCount(user) {
 
     const cartCount = document.querySelector(".cart-count");
 

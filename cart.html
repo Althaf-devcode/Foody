@@ -7,14 +7,11 @@
     <title>My Cart - Foody</title>
 
     <link rel="stylesheet" href="style.css">
-
-    <!-- Remix Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 
-<body>
+<body data-hide-auth-area="true" data-show-track-order="true">
 
-    <!-- Navbar -->
     <div id="navbar"></div>
 
     <div class="cart-page">
@@ -26,9 +23,7 @@
 
         <!-- Cart Items -->
         <div id="cart-container">
-
             <!-- Items will load from Firebase -->
-
         </div>
 
         <!-- Cart Summary -->
@@ -51,8 +46,7 @@
                 <span id="total">Rs. 0</span>
             </div>
 
-
-            <button class="checkout-btn">
+            <button class="checkout-btn" id="checkoutBtn">
                 Proceed to Checkout
             </button>
 
@@ -62,40 +56,16 @@
 
     <!-- Load Navbar -->
     <script type="module">
-        import { db } from "./firebase.js";
-        import {
-            collection,
-            getDocs
-        } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
-        async function updateCartCount() {
-
-            const snapshot = await getDocs(collection(db, "cart"));
-
-            let totalItems = 0;
-
-            snapshot.forEach(doc => {
-                totalItems += doc.data().quantity;
-            });
-
-            const cartCount = document.querySelector(".cart-count");
-
-            if (cartCount) {
-                cartCount.innerText = totalItems;
-            }
-        }
-
         fetch("navbar.html")
             .then(response => response.text())
             .then(data => {
-
                 document.getElementById("navbar").innerHTML = data;
-
-                updateCartCount(); // update badge after navbar loads
+                window.dispatchEvent(new Event("navbarLoaded"));
             });
     </script>
+
+    <script type="module" src="cartCount.js"></script>
     <script type="module" src="cart.js"></script>
-    <script type="module" src="script.js"></script>
     <script type="module" src="authentication.js"></script>
 
 </body>
