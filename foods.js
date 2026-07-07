@@ -1,5 +1,4 @@
-import { db, auth } from "./firebase.js";
-
+import { db } from "./firebase.js";
 import {
     collection,
     getDocs,
@@ -11,6 +10,8 @@ import {
 
 const foodContainer = document.getElementById("food-container");
 const buttons = document.querySelectorAll(".category-filter button");
+
+
 
 let allFoods = [];
 
@@ -44,80 +45,16 @@ function displayFoods(foods) {
 
             <p>${food.description}</p>
 
-            <div class="food-footer">
-
-                <span>Rs. ${food.price}</span>
-
-                <button class="cart-btn" data-index="${index}">
-                    Add to Cart
-                </button>
-
+                <div class="food-footer">
+                    <span>Rs. ${food.price}</span>
+                    <button>Add to Cart</button>
+                </div>
             </div>
-
-        </div>
         `;
     });
-
-    document.querySelectorAll(".cart-btn").forEach(btn => {
-
-        btn.addEventListener("click", async () => {
-
-            const user = auth.currentUser;
-
-            if (!user) {
-
-                alert("Please login first.");
-                window.location.href = "signin.html";
-                return;
-
-            }
-
-            const food = foods[btn.dataset.index];
-
-            const cartRef = collection(
-                db,
-                "users",
-                user.uid,
-                "cart"
-            );
-
-            const q = query(
-                cartRef,
-                where("name", "==", food.name)
-            );
-
-            const snapshot = await getDocs(q);
-
-            if (!snapshot.empty) {
-
-                const cartDoc = snapshot.docs[0];
-
-                await updateDoc(cartDoc.ref, {
-                    quantity: cartDoc.data().quantity + 1
-                });
-
-            } else {
-
-                await addDoc(cartRef, {
-                    name: food.name,
-                    image: food.image,
-                    price: food.price,
-                    quantity: 1
-                });
-
-            }
-
-            alert("Added to Cart!");
-
-            window.location.href = "cart.html";
-
-        });
-
-    });
-
 }
 
-// Filter
+//  Filter foods
 function filterFoods(category) {
 
     if (category === "all") {
