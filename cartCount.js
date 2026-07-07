@@ -1,12 +1,27 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
+
+import { onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
 import {
     collection,
     getDocs
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-async function updateCartCount() {
+export async function updateCartCount(user) {
 
-    const snapshot = await getDocs(collection(db, "cart"));
+    const cartCount = document.querySelector(".cart-count");
+
+    if (!cartCount) return;
+
+    if (!user) {
+        cartCount.innerText = "0";
+        return;
+    }
+
+    const snapshot = await getDocs(
+        collection(db, "users", user.uid, "cart")
+    );
 
     let count = 0;
 
@@ -14,13 +29,13 @@ async function updateCartCount() {
         count += doc.data().quantity;
     });
 
-    const cartCount = document.querySelector(".cart-count");
-
-    if (cartCount) {
-        cartCount.innerText = count;
-    }
+    cartCount.innerText = count;
 }
 
 window.addEventListener("navbarLoaded", () => {
-    updateCartCount();
+
+    onAuthStateChanged(auth, (user) => {
+        updateCartCount(user);
+    });
+
 });

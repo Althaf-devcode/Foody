@@ -14,6 +14,8 @@ import {
 
 const cartContainer = document.getElementById("cart-container");
 
+let currentTotal = 0; // track the latest total for checkout
+
 // Load Cart
 async function loadCart(user) {
 
@@ -38,6 +40,7 @@ async function loadCart(user) {
 
         document.getElementById("subtotal").innerText = "Rs. 0";
         document.getElementById("total").innerText = "Rs. 200";
+        currentTotal = 200;
 
         const cartCount = document.querySelector(".cart-count");
 
@@ -203,17 +206,14 @@ async function loadCart(user) {
     const deliveryFee = 200;
     const total = subtotal + deliveryFee;
 
+    currentTotal = total; // save for checkout
+
     document.getElementById("subtotal").innerText =
         "Rs. " + subtotal.toLocaleString();
 
     document.getElementById("total").innerText =
         "Rs. " + total.toLocaleString();
 }
-
-
-
-
-
 
 // Wait until Firebase knows the logged-in user
 onAuthStateChanged(auth, (user) => {
@@ -224,9 +224,23 @@ onAuthStateChanged(auth, (user) => {
 
     } else {
 
-        alert("Please login first.");
+        alert("Logged out successfully");
         window.location.href = "signin.html";
 
     }
+
+});
+
+
+// Proceed to Checkout — save total and go to payment page
+document.getElementById("checkoutBtn")?.addEventListener("click", () => {
+
+    if (currentTotal <= 200) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    localStorage.setItem("totalAmount", currentTotal);
+    window.location.href = "payment.html";
 
 });

@@ -58,7 +58,7 @@
 
 </head>
 
-<body>
+<body data-hide-auth-area="true" data-show-track-order="true">
 
 <!-- Navbar -->
 <div id="navbar"></div>
@@ -74,27 +74,40 @@ Total Amount:
 <span id="totalAmount"></span>
 </div>
 
-<div class="payment-method">
-    <input type="radio" name="payment" value="cod" checked>
-    Cash on Delivery
-</div>
 
-<!-- ADDRESS FIELD (ONLY FOR COD) -->
-<div class="card-details" id="codAddress" style="display:block; margin-top:10px;">
+
+<!-- DELIVERY ADDRESS -->
+<div style="margin-bottom:20px;">
+
+<label style="font-weight:bold;">
+Delivery Address
+</label>
 
 <textarea
     id="address"
     placeholder="Enter your delivery address"
     rows="4"
-    style="width:100%; padding:10px; margin-top:10px; resize:none;"></textarea>
+    style="width:100%;
+           padding:10px;
+           margin-top:8px;
+           resize:none;">
+</textarea>
 
 </div>
 
+
+<!-- PAYMENT METHOD -->
+<div class="payment-method">
+    <input type="radio" name="payment" value="cod" checked>
+    Cash on Delivery
+</div>
 
 <div class="payment-method">
-<input type="radio" name="payment" value="card">
-Card Payment
+    <input type="radio" name="payment" value="card">
+    Card Payment
 </div>
+
+
 
 <!-- CARD FORM -->
 
@@ -136,6 +149,7 @@ Submit Payment
 </div>
 
 <script type="module" src="payment.js"></script>
+<script type="module" src="authentication.js"></script>
 
 </body>
 </html>

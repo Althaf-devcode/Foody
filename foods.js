@@ -1,4 +1,5 @@
 import { db, auth } from "./firebase.js";
+import { updateCartCount } from "./cartCount.js";
 import {
     collection,
     getDocs,
@@ -96,6 +97,8 @@ function displayFoods(foods) {
             }
 
             alert("Added to Cart!");
+
+            await updateCartCount(user);
 
             window.location.href = "cart.html";
         });

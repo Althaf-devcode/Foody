@@ -9,9 +9,128 @@ import {
 
 import {
     doc,
-    setDoc
+    setDoc,
+    getDoc,
+    collection,
+    query,
+    where,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
+let currentAuthUser = null;
+let navbarObserverStarted = false;
+
+function bindUserDropdown() {
+    const userIcon = document.getElementById("userIcon");
+    const dropdown = document.getElementById("dropdown");
+
+    if (!userIcon || !dropdown || userIcon.dataset.dropdownBound === "true") {
+        return;
+    }
+
+    userIcon.dataset.dropdownBound = "true";
+
+    userIcon.addEventListener("click", (event) => {
+        event.stopPropagation();
+        dropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest("#user-area")) {
+            dropdown.classList.remove("show");
+        }
+    });
+}
+
+function applyAuthState(user) {
+    const authArea = document.getElementById("auth-area");
+    const userArea = document.getElementById("user-area");
+    const cartIcon = document.querySelector(".cart-icon");
+    const trackOrderBtn = document.getElementById("track-order-btn");
+    const hideAuthArea = document.body?.dataset.hideAuthArea === "true";
+    const hideCartIcon = document.body?.dataset.hideCartIcon === "true";
+    const showTrackOrder = document.body?.dataset.showTrackOrder === "true";
+
+    if (cartIcon) {
+        cartIcon.style.display = hideCartIcon ? "none" : "block";
+    }
+
+    if (trackOrderBtn) {
+        trackOrderBtn.style.display = user && showTrackOrder ? "flex" : "none";
+        trackOrderBtn.onclick = user && showTrackOrder ? () => {
+            window.location.href = "tracking.html";
+        } : null;
+    }
+
+    if (user) {
+        if (authArea) {
+            authArea.style.display = "none";
+        }
+
+        if (userArea) {
+            userArea.style.display = "flex";
+        }
+
+        bindUserDropdown();
+
+        // Logout button
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (logoutBtn) {
+            logoutBtn.onclick = async () => {
+
+                try {
+
+                    await signOut(auth);
+
+                    alert("Logged out successfully");
+
+                    window.location.href = "index.html";
+
+                } catch (err) {
+
+                    alert(err.message);
+
+                }
+            };
+        }
+
+        return;
+    }
+
+    if (authArea) {
+        authArea.style.display = hideAuthArea ? "none" : "flex";
+    }
+
+    if (userArea) {
+        userArea.style.display = "none";
+    }
+}
+
+function ensureNavbarBinding() {
+    if (navbarObserverStarted) {
+        return;
+    }
+
+    navbarObserverStarted = true;
+
+    const navbarMount = document.getElementById("navbar");
+
+    if (!navbarMount) {
+        return;
+    }
+
+    const observer = new MutationObserver(() => {
+        applyAuthState(currentAuthUser);
+    });
+
+    observer.observe(navbarMount, {
+        childList: true,
+        subtree: true
+    });
+
+    applyAuthState(currentAuthUser);
+}
 
 // Sign Up
 const signupBtn = document.getElementById("signup-btn");
@@ -63,8 +182,6 @@ if (signupBtn) {
 //-------------------------------------------------------------------------------------------
 
 // Login
-import { getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
 const signinBtn = document.getElementById("signin-btn");
 
 if (signinBtn) {
@@ -109,54 +226,21 @@ if (signinBtn) {
         }
     });
 }
+
 //--------------------------------------------------------------------------------------------------------
 
-//  Authenctication State
+//  Authentication State
 onAuthStateChanged(auth, (user) => {
-
-    const authArea = document.getElementById("auth-area");
-    const userArea = document.getElementById("user-area");
-
-    if (user) {
-
-        if (authArea) {
-            authArea.style.display = "none";
-        }
-
-        if (userArea) {
-            userArea.style.display = "flex";
-        }
-
-        // Logout button
-        const logoutBtn = document.getElementById("logoutBtn");
-
-        if (logoutBtn) {
-            logoutBtn.onclick = async () => {
-
-                try {
-
-                    await signOut(auth);
-
-                    alert("Logged out successfully");
-
-                    window.location.href = "index.html";
-
-                } catch (err) {
-
-                    alert(err.message);
-
-                }
-            };
-        }
-
-    } else {
-
-        if (authArea) {
-            authArea.style.display = "flex";
-        }
-
-        if (userArea) {
-            userArea.style.display = "none";
-        }
-    }
+    currentAuthUser = user;
+    applyAuthState(user);
 });
+
+window.addEventListener("navbarLoaded", () => {
+    applyAuthState(currentAuthUser);
+});
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ensureNavbarBinding);
+} else {
+    ensureNavbarBinding();
+}
