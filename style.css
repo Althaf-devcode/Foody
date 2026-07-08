@@ -56,8 +56,8 @@ html {
 /* Cart */
 
 .cart-icon{
-    position:relative;
     cursor:pointer;
+    position:relative;
 }
 
 .cart-icon i{
