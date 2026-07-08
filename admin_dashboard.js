@@ -83,7 +83,7 @@ function showSection(name) {
 
 async function loadDashboard() {
     const ordersSnap = await getDocs(collection(db, "orders"));
-    const menuSnap   = await getDocs(collection(db, "foods"));
+    const menuSnap = await getDocs(collection(db, "foods"));
 
     const orders = ordersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
@@ -91,9 +91,9 @@ async function loadDashboard() {
     let pending = 0, preparing = 0, ready = 0, delivered = 0, revenue = 0;
 
     orders.forEach(o => {
-        if (o.status === "Pending")   pending++;
+        if (o.status === "Pending") pending++;
         if (o.status === "Preparing") preparing++;
-        if (o.status === "Ready")     ready++;
+        if (o.status === "Ready") ready++;
         if (o.status === "Delivered") delivered++;
 
         // count revenue if paid or has a payment method
@@ -102,8 +102,8 @@ async function loadDashboard() {
         }
     });
 
-    let totalEl   = document.getElementById("totalOrders");
-    if (totalEl)  totalEl.textContent = total;
+    let totalEl = document.getElementById("totalOrders");
+    if (totalEl) totalEl.textContent = total;
 
     let pendingEl = document.getElementById("pendingOrders");
     if (pendingEl) pendingEl.textContent = pending;
@@ -115,14 +115,19 @@ async function loadDashboard() {
     if (revEl) revEl.textContent = "Rs." + revenue.toLocaleString();
 
     // progress bars
-    updateBar("barPending",   "countPending",   pending,   total);
+    updateBar("barPending", "countPending", pending, total);
     updateBar("barPreparing", "countPreparing", preparing, total);
-    updateBar("barReady",     "countReady",     ready,     total);
+    updateBar("barReady", "countReady", ready, total);
     updateBar("barDelivered", "countDelivered", delivered, total);
 
     // last 5 orders sorted by time
     const sorted = [...orders].sort((a, b) => {
-        return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+        const getTime = (o) => {
+            if (o.createdAt?.seconds) return o.createdAt.seconds * 1000; // Firestore Timestamp
+            if (o.createdAt) return new Date(o.createdAt).getTime();    // ISO string
+            return 0;
+        };
+        return getTime(b) - getTime(a);
     });
     const recent = sorted.slice(0, 5);
 
@@ -133,7 +138,7 @@ async function loadDashboard() {
         } else {
             tbody.innerHTML = recent.map(o => `
                 <tr>
-                    <td><span class="order-id">${o.id.slice(0, 8).toUpperCase()}</span></td>
+                   <td><span class="order-id">${o.orderId || o.id.slice(0, 8).toUpperCase()}</span></td>
                     <td>${o.customerName || "—"}</td>
                     <td>Rs.${toNumber(o.totalAmount).toLocaleString()}</td>
                     <td>${makeStatusBadge(o.status)}</td>
@@ -153,7 +158,7 @@ async function loadDashboard() {
                     <div class="activity-body">
                         <div class="activity-title">Order from ${o.customerName || "Customer"}</div>
                         <div class="activity-meta">
-                            #${o.id.slice(0, 8).toUpperCase()} · Rs.${toNumber(o.totalAmount).toLocaleString()} · ${o.paymentMethod || "—"} · ${o.status || "Pending"}
+                           #${o.orderId || o.id.slice(0, 8).toUpperCase()} · Rs.${toNumber(o.totalAmount).toLocaleString()} · ${o.paymentMethod || "—"} · ${o.status || "Pending"}
                         </div>
                     </div>
                 </div>
@@ -209,12 +214,11 @@ function renderOrders(orders) {
         tbody.innerHTML = `<tr><td colspan="7" class="no-data">No orders found.</td></tr>`;
         return;
     }
-
     tbody.innerHTML = orders.map(o => {
         const itemsStr = formatItems(o);
         return `
             <tr>
-                <td><span class="order-id">${o.id.slice(0, 8).toUpperCase()}</span></td>
+                <td><span class="order-id">${o.orderId || o.id.slice(0, 8).toUpperCase()}</span></td>
                 <td>${o.customerName || "—"}</td>
                 <td>${o.phone || o.address || "—"}</td>
                 <td class="items-cell">${itemsStr}</td>
@@ -222,11 +226,11 @@ function renderOrders(orders) {
                 <td>${makeStatusBadge(o.status)}</td>
                 <td>
                     <select class="status-select" data-id="${o.id}">
-                        <option value="Pending"   ${o.status === "Pending"   ? "selected" : ""}>Pending</option>
+                        <option value="Pending"   ${o.status === "Pending" ? "selected" : ""}>Pending</option>
                         <option value="Preparing" ${o.status === "Preparing" ? "selected" : ""}>Preparing</option>
-                        <option value="Ready"     ${o.status === "Ready"     ? "selected" : ""}>Ready</option>
+                        <option value="Ready"     ${o.status === "Ready" ? "selected" : ""}>Ready</option>
                         <option value="Delivered" ${o.status === "Delivered" ? "selected" : ""}>Delivered</option>
-                        <option value="Paid"      ${o.status === "Paid"      ? "selected" : ""}>Paid</option>
+                        <option value="Paid"      ${o.status === "Paid" ? "selected" : ""}>Paid</option>
                     </select>
                 </td>
             </tr>
@@ -235,13 +239,17 @@ function renderOrders(orders) {
 
     document.querySelectorAll(".status-select").forEach(sel => {
         sel.addEventListener("change", async e => {
-            const id     = e.target.dataset.id;
+            const id = e.target.dataset.id;
             const status = e.target.value;
+            const order = allOrders.find(o => o.id === id);
+            const displayId = order?.orderId || id.slice(0, 8).toUpperCase();
             await updateDoc(doc(db, "orders", id), { status });
-            showToast("Order " + id.slice(0, 8).toUpperCase() + " updated to " + status, "success");
+            showToast("Order " + displayId + " updated to " + status, "success");
         });
     });
 }
+
+
 
 document.getElementById("orderStatusFilter")?.addEventListener("change", filterOrders);
 document.getElementById("orderSearch")?.addEventListener("input", filterOrders);
@@ -316,13 +324,13 @@ document.getElementById("menuSearch")?.addEventListener("input", e => {
 
 
 function updatePreview() {
-    const name  = document.getElementById("foodName").value.trim();
+    const name = document.getElementById("foodName").value.trim();
     const price = document.getElementById("foodPrice").value;
-    const cat   = document.getElementById("foodCategory").value;
+    const cat = document.getElementById("foodCategory").value;
     const image = document.getElementById("foodImage").value.trim();
-    const desc  = document.getElementById("foodDesc").value.trim();
+    const desc = document.getElementById("foodDesc").value.trim();
     const avail = document.getElementById("foodAvailable").value;
-    const box   = document.getElementById("previewBox");
+    const box = document.getElementById("previewBox");
 
     if (!name && !price && !cat) {
         box.innerHTML = `
@@ -351,8 +359,8 @@ function updatePreview() {
                     <div class="menu-price">Rs. ${price ? Number(price).toLocaleString() : "0"}</div>
                     <span class="menu-avail ${avail === "true" ? "avail-yes" : "avail-no"}">
                         ${avail === "true"
-                            ? icon("circle-check", 14) + " Available"
-                            : icon("circle-x",     14) + " Unavailable"}
+            ? icon("circle-check", 14) + " Available"
+            : icon("circle-x", 14) + " Unavailable"}
                     </span>
                 </div>
             </div>
@@ -360,18 +368,18 @@ function updatePreview() {
 }
 
 ["foodName", "foodPrice", "foodCategory", "foodImage", "foodDesc", "foodAvailable"].forEach(id => {
-    document.getElementById(id)?.addEventListener("input",  updatePreview);
+    document.getElementById(id)?.addEventListener("input", updatePreview);
     document.getElementById(id)?.addEventListener("change", updatePreview);
 });
 
 
 document.getElementById("saveItemBtn")?.addEventListener("click", async () => {
-    const name     = document.getElementById("foodName").value.trim();
-    const price    = document.getElementById("foodPrice").value;
+    const name = document.getElementById("foodName").value.trim();
+    const price = document.getElementById("foodPrice").value;
     const category = document.getElementById("foodCategory").value;
-    const image    = document.getElementById("foodImage").value.trim();
-    const desc     = document.getElementById("foodDesc").value.trim();
-    const editId   = document.getElementById("editItemId").value;
+    const image = document.getElementById("foodImage").value.trim();
+    const desc = document.getElementById("foodDesc").value.trim();
+    const editId = document.getElementById("editItemId").value;
 
     if (!name || !category || !price || !image || !desc) {
         showFormMsg("Please fill in all required fields.", "error");
@@ -431,12 +439,12 @@ window.editItem = async (id) => {
     if (!snap.exists()) return;
 
     const d = snap.data();
-    document.getElementById("editItemId").value    = id;
-    document.getElementById("foodName").value      = d.name        || "";
-    document.getElementById("foodCategory").value  = d.category    || "";
-    document.getElementById("foodPrice").value     = d.price       || "";
-    document.getElementById("foodImage").value     = d.image       || "";
-    document.getElementById("foodDesc").value      = d.description || "";
+    document.getElementById("editItemId").value = id;
+    document.getElementById("foodName").value = d.name || "";
+    document.getElementById("foodCategory").value = d.category || "";
+    document.getElementById("foodPrice").value = d.price || "";
+    document.getElementById("foodImage").value = d.image || "";
+    document.getElementById("foodDesc").value = d.description || "";
 
     const title = document.getElementById("formTitle");
     if (title) title.textContent = "Edit Food Item";
@@ -468,7 +476,7 @@ async function loadUsers() {
     }
 
     const rows = await Promise.all(snap.docs.map(async d => {
-        const u       = d.data();
+        const u = d.data();
         const initial = (u.name || u.email || "?")[0].toUpperCase();
 
         let cartQty = 0;
@@ -514,22 +522,22 @@ document.getElementById("modalOverlay")?.addEventListener("click", e => {
 
 function makeStatusBadge(status) {
     const classes = {
-        Pending:   "badge-pending",
+        Pending: "badge-pending",
         Preparing: "badge-preparing",
-        Ready:     "badge-ready",
+        Ready: "badge-ready",
         Delivered: "badge-delivered",
-        Paid:      "badge-delivered"
+        Paid: "badge-delivered"
     };
     // Lucide icon name per status
     const icons = {
-        Pending:   "clock",
+        Pending: "clock",
         Preparing: "chef-hat",
-        Ready:     "circle-check",
+        Ready: "circle-check",
         Delivered: "truck",
-        Paid:      "banknote"
+        Paid: "banknote"
     };
-    const cls     = classes[status] || "badge-pending";
-    const iconName = icons[status]  || "clock";
+    const cls = classes[status] || "badge-pending";
+    const iconName = icons[status] || "clock";
     return `<span class="badge ${cls}">${icon(iconName, 13)} ${status || "Pending"}</span>`;
 }
 
@@ -545,10 +553,10 @@ function showFormMsg(msg, type) {
     const el = document.getElementById("formMsg");
     if (!el) return;
     el.textContent = msg;
-    el.className   = "form-msg " + type + " show";
+    el.className = "form-msg " + type + " show";
     setTimeout(() => {
         el.textContent = "";
-        el.className   = "form-msg";
+        el.className = "form-msg";
     }, 4000);
 }
 
